@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./script.js"></script>
+    <title>Calculator</title>
+</head>
+<body>
+
+    <label for="num-a">Liczba A</label>
+    <input id="num-a" placeholder="Podaj liczbę A..."/>
+    
+    <label for="num-b">Liczba B</label>
+    <input id="num-b" placeholder="Podaj liczbę B..."/>
+
+    <br/>
+    <button onclick="adder()">+</button>
+    <button>-</button>
+    <button>/</button>
+    <button>*</button>
+
+    <br/>
+    <h3>Results:</h3>
+    <ul id="results-list">
+        
+    </ul>
+    <dialog id="omg">
+        A lub B nie jest liczbą
+        <br/>
+        <button id="omg-close">Ok, zrozumiałem</button>
+    </dialog>
+</body>
+</html>
