@@ -1,43 +1,66 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import {hotels} from '../data.js';
+import { ref, getDownloadURL } from 'firebase/storage';
+import { storage } from '../data/init.js';
 import zdjecie from '../Assets/cards2.jpg';
 import mail from '../Assets/mail.svg';
+
 function HotelDetail() {
     const { hotelId } = useParams();
-    const hotel = hotels.find(h => h.id.toString() === hotelId);
-  return (
-    <section className="hero-section">
-    <section id="hero" class="hero-browse">
-        <article class="hero-cards">
-            <p className="title-large">{hotel.name}</p>
-        </article>
-    </section>
-    <section id="hero" class="grid hero-section">
-        <div class="hero-image-containers" style={{backgroundImage: {zdjecie}}}></div>
-        <article class="hero-detail">
-            <div class="text-middle">
-                <p><b>Location:</b> {hotel.location}</p>
-                <p><b>Local category:</b> {hotel.rating}</p>
-                <p><b>Price:</b> {hotel.price}/room</p>
-                <p><b>Description:</b></p>
-            </div>
-            <p class="text-middle">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at mi vehicula, fermentum magna non, semper ipsum. 
-                In vehicula neque mi, sit amet bibendum magna vehicula nec. Proin at magna aliquam, maximus orci quis, euismod eros. 
-                Ut facilisis sapien est, non placerat orci pharetra non. Donec quis nulla vel urna tincidunt dictum. 
-                Quisque volutpat, lectus nec iaculis euismod, augue massa consequat enim, nec pharetra massa massa nec ipsum.
-            </p>
-            <button class="button primary contact">Contact<img src={mail}/></button>
-            <div class="hero-cards">
-                <div class="card-image">
-                </div>
-                <div class="card-image">
-                </div>
-            </div>
-        </article>
-    </section>
-    </section>
-  );
+    const [hotel, setHotel] = useState(null);
+
+    useEffect(() => {
+        const fetchHotelData = async () => {
+            const pathReference = ref(storage, 'data.json'); 
+
+            try {
+                const url = await getDownloadURL(pathReference);
+                const response = await fetch(url);
+                const hotels = await response.json();
+                const foundHotel = hotels.find(h => h.id.toString() === hotelId); 
+                if (foundHotel) {
+                    setHotel(foundHotel);
+                } else {
+                    console.log("No such hotel!");
+                }
+            } catch (error) {
+                console.error("Error fetching hotel data: ", error);
+            }
+        };
+
+        fetchHotelData();
+    }, [hotelId]);
+
+    return (
+        <section className="hero-section">
+            <section id="hero" className="hero-browse">
+                <article className="hero-cards">
+                    <p className="title-large">{hotel ? hotel.name : 'Loading hotel details...'}</p>
+                </article>
+            </section>
+            <section id="hero" className="grid hero-section">
+                <div className="hero-image-containers" style={{backgroundImage: `url(${zdjecie})`}}></div>
+                {hotel ? (
+                    <article className="hero-detail">
+                        <div className="text-middle">
+                            <p><b>Location:</b> {hotel.location}</p>
+                            <p><b>Local category:</b> {hotel.rating}</p>
+                            <p><b>Price:</b> {hotel.price}/room</p>
+                            <p><b>Description:</b></p>
+                        </div>
+                        <p className="text-middle">{hotel.description}</p>
+                        <button className="button primary contact"><img src={mail} alt="Contact"/></button>
+                        <div class="hero-cards">
+                            <div class="card-image"></div>
+                            <div class="card-image"></div>
+                        </div>
+                    </article>
+                ) : (
+                    <p>Loading hotel details...</p>
+                )}
+            </section>
+        </section>
+    );
 }
 
 export default HotelDetail;
