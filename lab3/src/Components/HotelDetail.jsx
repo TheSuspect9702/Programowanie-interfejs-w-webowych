@@ -8,6 +8,30 @@ import mail from '../Assets/mail.svg';
 function HotelDetail() {
     const { hotelId } = useParams();
     const [hotel, setHotel] = useState(null);
+    const [email, setEmail] = useState('');
+    const [message, setMessage] = useState('');
+    const [showForm, setShowForm] = useState(false);
+    const [messageSent, setMessageSent] = useState(false); 
+
+    const handleEmailChange = (event) => {
+        setEmail(event.target.value);
+      };
+    
+      const handleMessageChange = (event) => {
+        setMessage(event.target.value);
+      };
+    
+      const handleSubmit = (event) => {
+        event.preventDefault();
+        setMessageSent(true); 
+      };
+    
+      const toggleForm = () => {
+        setShowForm(!showForm);
+        if (showForm) { 
+          setMessageSent(false);
+        }
+      };
 
     useEffect(() => {
         const fetchHotelData = async () => {
@@ -49,7 +73,25 @@ function HotelDetail() {
                             <p><b>Description:</b></p>
                         </div>
                         <p className="text-middle">{hotel.description}</p>
-                        <button className="button primary contact"><img src={mail} alt="Contact"/></button>
+                        <button onClick={toggleForm}  className="button primary contact">
+                            <img src={mail} alt="Contact"/>
+                        </button>   
+                        {showForm && (
+                            messageSent ? (
+                            <p>Wysłano!!!</p>
+                            ) : (
+                                <form onSubmit={handleSubmit} className="formStyle" >
+                                    <label htmlFor="email">Owner's Email:</label>
+                                    <input type="email" id="email" className="inputStyle" value={email} onChange={handleEmailChange} required />
+                                    <br></br>
+                                    <br></br>
+                                    <label htmlFor="message">Your Message:</label>
+                                    <textarea id="message" className="inputStyle" value={message} onChange={handleMessageChange} required />
+                                    <button type="submit" className="button primary contact">Wyślij</button>
+                                </form>
+                            )
+                        )}
+                        
                         <div class="hero-cards">
                             <div class="card-image"></div>
                             <div class="card-image"></div>

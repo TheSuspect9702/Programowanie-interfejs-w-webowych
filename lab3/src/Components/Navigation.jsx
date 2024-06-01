@@ -1,8 +1,35 @@
-import React, { useState} from 'react';
+import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import Logo from '../Assets/logo.svg';
 import { googleLogin, registerWithEmailPassword, loginWithEmailPassword } from '../data/authService';
 import Modal from '../Components/Modal';
+
+const ChatModal = React.memo(({ onClose }) => {
+    const [message, setMessage] = useState('');
+
+    const handleMessageChange = (event) => {
+        setMessage(event.target.value);
+    };
+
+    const handleSubmit = (event) => {
+        event.preventDefault(); 
+        console.log('Message sent:', message); 
+        setMessage(''); 
+        onClose(); 
+    };
+
+    return (
+        <div className="modalStyle">
+            <form onSubmit={handleSubmit} className="formStyle">
+                <label htmlFor="message">Your Message:</label>
+                <textarea id="message" className="inputStyleModal" value={message} onChange={handleMessageChange} required />
+                <button type="submit" className="button primary contact">Send Message</button>
+            </form>
+            <br></br>
+            <button  className="buttonStyle" onClick={onClose}>Close</button>
+        </div>
+    );
+});
 
 function Navigation() {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -10,6 +37,12 @@ function Navigation() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+
+    const handleCloseModal = useCallback(() => {
+        setShowModal(false);
+    }, []);
+
 
     const handleGoogleLogin = () => {
             googleLogin()
@@ -36,6 +69,7 @@ function Navigation() {
     };
 
     return (
+        <>
         <nav className="fixed-navigation">
             <img className="logo" src={Logo} alt="Logo"/>
             <ul className="nav-links">
@@ -65,7 +99,10 @@ function Navigation() {
                         <button className="button primary" onClick={() => handleEmailPasswordAuth('register')}>Register</button>
                     </div>
                 </Modal>
+                <button className="button primary" onClick={() => setShowModal(true)}>Chat</button>
             </nav>
+                {showModal && <ChatModal onClose={handleCloseModal} />}
+            </>
     );
 }
 

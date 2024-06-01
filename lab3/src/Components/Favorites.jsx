@@ -6,11 +6,11 @@ import { BasketContext } from '../App.js';
 import favorite from '../Assets/heartfilled.svg';
 import notfavorite from '../Assets/heart.svg'
 
-function BrowseHotels() {
+function Favorites() {
     const [hotels, setHotels] = useState([]);
     const { basket, dispatch } = useContext(BasketContext);
     const navigate = useNavigate();
-
+    
     const handleViewOffer = (hotelId) => {
         navigate(`/hotels/${hotelId}`);
     };
@@ -18,19 +18,21 @@ function BrowseHotels() {
     useEffect(() => {
         const fetchHotels = async () => {
             const pathReference = ref(storage, 'data.json');
-            
             try {
                 const url = await getDownloadURL(pathReference);
                 const response = await fetch(url);
                 const jsonData = await response.json();
-                setHotels(jsonData); 
+                const favorites = jsonData.filter(hotel => basket.some(item => item.id === hotel.id));
+                setHotels(favorites);
             } catch (error) {
                 console.error("Failed to load hotels", error);
             }
         };
 
-        fetchHotels();
-    }, []);
+        if (basket.length > 0) {
+            fetchHotels();
+        }
+    }, [basket]); 
 
     const toggleFavorite = (hotel) => {
         const isFavorite = basket.some(item => item.id === hotel.id);
@@ -44,12 +46,12 @@ function BrowseHotels() {
     const isHotelFavorite = (hotelId) => {
         return basket.some(item => item.id === hotelId);
     };
-    
+
     return (
         <section id="browse" className="browse-section">
-            <p className="title-middle">Explore the hotels</p>
+            <p className="title-middle">Favorite Hotels</p>
             <div className="grid hotel-cards">
-                {hotels.map(hotel => (
+                {hotels.length > 0 ? hotels.map(hotel => (
                     <article className="hotel-card" key={hotel.id}>
                        <div className="card-image">
                           <div className="heart">
@@ -66,10 +68,10 @@ function BrowseHotels() {
                         </div>
                         <button className="button primary" onClick={() => handleViewOffer(hotel.id)}>View offer</button>
                     </article>
-                ))}
+                )) : <p>No favorites added yet.</p>}
             </div>
         </section>
     );
 }
 
-export default BrowseHotels;
+export default Favorites;
